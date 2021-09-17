@@ -1,0 +1,6 @@
+#+title: hugo-tailwind-zettelwiki-template
+
+All files for the series "Building Wikis with Org-Roam and Hugo" on [[https://jhilker.com][my website]].
+
+* How To Use
+Each post of the series has its own branch. To see the relevant code for a particular post, just select it from the branch dropdown in the top-left.

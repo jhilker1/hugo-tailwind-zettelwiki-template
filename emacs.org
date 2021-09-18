@@ -26,7 +26,7 @@ Although there is only one difference between our capture function and the origi
 #+begin_src elisp
 (defun my/org-roam-function (directory)
 "Sets `org-roam-directory` to `directory`, and `org-roam-db-location` to `directory/org-roam.db` Prints `org-roam-db-location`."
-  (let ((org-roam-directory directory)
+  (let ((org-roam-directory (concat directory "content-org/"))
           (org-roam-db-location (concat directory "org-roam.db")))
        (message org-roam-db-location)))
 (my/org-roam-function "~/org/roam/")
@@ -37,7 +37,7 @@ This is our redefined function for capturing notes.
 #+begin_src elisp
 (defun my/org-roam-capture (directory)
 "Sets `org-roam-directory` to `directory`, and `org-roam-db-location` to `directory/org-roam.db` Captures to `directory.`"
-(let ((org-roam-directory directory)
+(let ((org-roam-directory (concat directory "content-org/"))
           (org-roam-db-location (concat directory "org-roam.db")))
      (org-roam-capture))) ;; works for both v1 and v2
 #+end_src
@@ -47,29 +47,60 @@ This is our redefined function for finding notes.
 #+begin_src elisp
 (defun my/org-roam-find-file (directory)
 "Sets `org-roam-directory` to `directory`, and `org-roam-db-location` to `directory/org-roam.db` Finds file in `directory.`"
-(let ((org-roam-directory directory)
+(let ((org-roam-directory (concat directory "content-org/"))
           (org-roam-db-location (concat directory "org-roam.db")))
-      (org-roam-node-find)))
+      (org-roam-node-find) ;; for org roam v2
+   ;; (org-roam-find-file) ;; for org roam v1
+))
 #+end_src
 
 ** Inserting Backlinks
 #+begin_src elisp
-(defun my/org-roam-capture (directory)
+(defun my/org-roam-insert (directory)
 "Sets `org-roam-directory` to `directory`, and `org-roam-db-location` to `directory/org-roam.db` Captures to `directory.`"
 (let ((org-roam-directory directory)
           (org-roam-db-location (concat directory "org-roam.db")))
-     (org-roam-capture))) ;; works for both v1 and v2
+     (org-roam-node-insert) ;; works for org-roam v2
+   ;;(org-roam-insert)  ;; for org-roam v1
+)) 
 #+end_src
 
 
 
 * The Hydras
+Now you can set up a hydra with your different functions.
 ** Capturing Notes
 This hydra will allow us to capture notes to a particular directory. You will need notes and a database file there.
 #+begin_src elisp
-(defhydra org-roam-capture-hydra
+(defhydra org-roam-capture-hydra (:exit nil)
+"Capture note to certain directory."
 
-
-
-)
+("d" (my/org-roam-capture "~/org/roam/") "Default")
+("p" (my/org-roam-capture "/path/to/org/files/") "Path"))
 #+end_src
+
+
+** Finding Notes
+This hydra will allow us to find notes in a particular directory.
+#+begin_src elisp
+(defhydra org-roam-find-hydra (:exit nil)
+"Find note in certain directory."
+("d" (my/org-roam-find "~/org/roam/") "Default")
+("p" (my/org-roam-find "/path/to/org/files/") "Path"))
+#+end_src
+
+
+
+
+** Inserting Links to Notes
+This hydra will allow us to insert links to notes in a particular directory.
+#+begin_src elisp
+(defhydra org-roam-insert-hydra (:exit nil)
+"Insert link to note from directory."
+
+("d" (my/org-roam-insert "~/org/roam/") "Default")
+("p" (my/org-roam-insert "/path/to/org/files/") "Path"))
+#+end_src
+
+* Wrapping Up
+Now that you've gotten those hydras and functions defined, you will just need to bind the hydra bodies, such as =my/org-roam-capture-hydra=, to a particular key or key-chord. Since I personally use evil-mode, I use =SPC n x= for capturing, but you can bind it to whatever you want.
